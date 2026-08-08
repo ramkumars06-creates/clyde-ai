@@ -35,7 +35,7 @@
   --bg-clyde-bubble: #23221e;
   --bg-code-block: #151412;
   --bg-modal: #1f1e1a;
-  --bg-overlay: rgba(0, 0, 0, 0.65);
+  --bg-overlay: rgba(0, 0, 0, 0.7);
 
   --text-primary: #f4f2ec;
   --text-secondary: #a39e93;
@@ -350,7 +350,11 @@ textarea, input, select {
   margin-left: 6px;
 }
 
-/* User Profile Footer */
+/* User Profile Footer Card & Dropdown */
+.user-profile-card-wrapper {
+  position: relative;
+}
+
 .user-profile-card {
   padding: 10px;
   border-radius: 12px;
@@ -359,6 +363,12 @@ textarea, input, select {
   display: flex;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.user-profile-card:hover {
+  border-color: var(--accent-border);
 }
 
 .user-avatar {
@@ -402,6 +412,257 @@ textarea, input, select {
   width: 16px;
   height: 16px;
   color: var(--text-muted);
+}
+
+/* User Profile Dropdown Menu */
+.user-profile-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background-color: var(--bg-modal);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  z-index: 60;
+}
+
+.user-profile-menu.hidden { display: none; }
+
+.menu-item {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: var(--transition-fast);
+}
+
+.menu-item:hover {
+  background-color: var(--bg-panel-hover);
+}
+
+.menu-item.danger {
+  color: #ef4444;
+}
+
+.menu-item.danger:hover {
+  background-color: rgba(239, 68, 68, 0.12);
+}
+
+.menu-divider {
+  height: 1px;
+  background-color: var(--border-subtle);
+  margin: 4px 0;
+}
+
+/* Header Login Badge */
+.login-badge-btn {
+  padding: 6px 12px;
+  background-color: var(--accent-subtle);
+  color: var(--accent-color);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-fast);
+}
+
+.login-badge-btn:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+.login-badge-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ==========================================================================
+   AUTHENTICATION MODAL STYLES
+   ========================================================================== */
+
+.auth-modal-card {
+  max-width: 440px;
+  padding: 8px;
+  border-radius: 20px;
+}
+
+.auth-modal-header {
+  text-align: center;
+  padding: 20px 20px 10px 20px;
+  position: relative;
+}
+
+.auth-brand-logo {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: #fff;
+  border-radius: 50%;
+  margin: 0 auto 12px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px var(--accent-subtle);
+}
+
+.auth-modal-header h2 {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.auth-modal-header p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.auth-modal-body {
+  padding: 10px 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Social Buttons */
+.social-auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.social-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-card-inner);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: var(--transition-fast);
+}
+
+.social-btn:hover {
+  border-color: var(--accent-border);
+  background-color: var(--bg-panel-hover);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 4px 0;
+}
+
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.auth-divider span {
+  padding: 0 10px;
+}
+
+/* Auth Tabs (Sign In vs Register) */
+.auth-tabs {
+  display: flex;
+  background-color: var(--bg-card-inner);
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  color: var(--text-muted);
+  text-align: center;
+  transition: var(--transition-fast);
+}
+
+.auth-tab.active {
+  background-color: var(--bg-modal);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-form-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: -4px;
+}
+
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.forgot-pass-link {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.forgot-pass-link:hover {
+  text-decoration: underline;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 4px 14px var(--accent-subtle);
+  transition: var(--transition-fast);
+}
+
+.auth-submit-btn:hover {
+  transform: translateY(-1px);
+}
+
+.guest-mode-wrapper {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  padding-top: 6px;
+}
+
+.guest-btn {
+  color: var(--accent-color);
+  font-weight: 600;
+  text-decoration: underline;
 }
 
 /* ==========================================================================
@@ -714,7 +975,7 @@ textarea, input, select {
   max-width: 82%;
 }
 
-/* User Bubble (Right Aligned Tinted Card) */
+/* User Bubble */
 .message-row.user .message-bubble {
   background-color: var(--bg-user-bubble);
   color: var(--text-user-bubble);
@@ -727,7 +988,7 @@ textarea, input, select {
   word-break: break-word;
 }
 
-/* Clyde Bubble (Left Aligned Card) */
+/* Clyde Bubble */
 .message-row.clyde .message-bubble {
   background-color: var(--bg-clyde-bubble);
   border: 1px solid var(--border-subtle);
@@ -1031,7 +1292,6 @@ textarea, input, select {
   background-color: var(--bg-card-inner);
   border-radius: 12px;
   border: 1px solid var(--border-subtle);
-
 }
 
 .heart { color: #ef4444; }
@@ -1129,7 +1389,7 @@ textarea, input, select {
   backdrop-filter: blur(4px);
 }
 
-.modal-overlay.hidden { display: none; }
+.modal-overlay.hidden { display: none !important; }
 
 .modal-card {
   width: 100%;

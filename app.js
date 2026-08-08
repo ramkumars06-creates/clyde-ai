@@ -1,17 +1,25 @@
 /**
  * CLYDE MAIN APPLICATION CONTROLLER
- * 3-Column Floating Panel Layout Implementation.
+ * Includes User Authentication System, Profile Management & User-Scoped Persistence.
  */
 
 class ClydeApp {
   constructor() {
-    this.chats = JSON.parse(localStorage.getItem('clyde_chats')) || [];
-    this.activeChatId = localStorage.getItem('clyde_active_chat') || null;
+    this.currentUser = JSON.parse(localStorage.getItem('clyde_user')) || {
+      id: 'usr_guest',
+      name: 'Guest User',
+      email: 'guest@clyde.ai',
+      isGuest: true
+    };
+
+    this.chats = JSON.parse(localStorage.getItem(`clyde_chats_${this.currentUser.id}`)) || [];
+    this.activeChatId = localStorage.getItem(`clyde_active_chat_${this.currentUser.id}`) || null;
 
     this.activeModel = 'clyde-3-5-sonnet';
     this.activeStyle = 'normal';
     this.attachments = [];
     this.isGenerating = false;
+    this.authMode = 'login';
 
     this.initDOM();
     this.initTheme();
@@ -45,7 +53,34 @@ class ClydeApp {
     this.themeToggleBtn = document.getElementById('theme-toggle-btn');
     this.themeIcon = document.getElementById('theme-icon');
 
-    this.navSettingsBtn = document.getElementById('nav-settings-btn');
+    // Sidebar User Profile & Dropdown
+    this.sidebarUserTrigger = document.getElementById('user-profile-trigger');
+    this.sidebarUserMenu = document.getElementById('user-profile-menu');
+    this.sidebarUserName = document.getElementById('sidebar-user-name');
+    this.sidebarUserEmail = document.getElementById('sidebar-user-email');
+    this.sidebarUserAvatar = document.getElementById('sidebar-user-avatar');
+    this.headerLoginBtn = document.getElementById('header-login-btn');
+    this.openAuthBtn = document.getElementById('open-auth-btn');
+    this.signoutBtn = document.getElementById('signout-btn');
+    this.menuSettingsBtn = document.getElementById('menu-settings-btn');
+
+    // Auth Modal DOM
+    this.authModal = document.getElementById('auth-modal');
+    this.closeAuthBtn = document.getElementById('close-auth-btn');
+    this.tabLoginBtn = document.getElementById('tab-login-btn');
+    this.tabRegisterBtn = document.getElementById('tab-register-btn');
+    this.nameGroup = document.getElementById('name-group');
+    this.authTitle = document.getElementById('auth-title');
+    this.authSubmitBtn = document.getElementById('auth-submit-btn');
+    this.authForm = document.getElementById('auth-form');
+    this.authEmailInput = document.getElementById('auth-email-input');
+    this.authPasswordInput = document.getElementById('auth-password-input');
+    this.authNameInput = document.getElementById('auth-name-input');
+    this.googleLoginBtn = document.getElementById('google-login-btn');
+    this.githubLoginBtn = document.getElementById('github-login-btn');
+    this.guestLoginBtn = document.getElementById('guest-login-btn');
+
+    // Settings Modal DOM
     this.settingsModal = document.getElementById('settings-modal');
     this.closeSettingsBtns = document.querySelectorAll('#close-settings-btn, #cancel-settings-btn');
     this.saveSettingsBtn = document.getElementById('save-settings-btn');
@@ -109,7 +144,115 @@ class ClydeApp {
       if (!e.target.closest('.model-picker-wrapper')) {
         if (this.modelPickerBtn) this.modelPickerBtn.parentElement.classList.remove('open');
       }
+      if (!e.target.closest('.user-profile-card-wrapper')) {
+        if (this.sidebarUserMenu) this.sidebarUserMenu.classList.add('hidden');
+      }
     });
+
+    // User Profile Trigger & Dropdown
+    if (this.sidebarUserTrigger) {
+      this.sidebarUserTrigger.addEventListener('click', () => {
+        this.sidebarUserMenu.classList.toggle('hidden');
+      });
+    }
+
+    // Auth Triggers
+    if (this.headerLoginBtn) this.headerLoginBtn.addEventListener('click', () => this.openAuthModal());
+    if (this.openAuthBtn) this.openAuthBtn.addEventListener('click', () => this.openAuthModal());
+    if (this.closeAuthBtn) this.closeAuthBtn.addEventListener('click', () => this.authModal.classList.add('hidden'));
+
+    // Auth Tabs Switcher
+    if (this.tabLoginBtn) {
+      this.tabLoginBtn.addEventListener('click', () => {
+        this.authMode = 'login';
+        this.tabLoginBtn.classList.add('active');
+        this.tabRegisterBtn.classList.remove('active');
+        this.nameGroup.classList.add('hidden');
+        this.authTitle.textContent = 'Welcome back to Clyde';
+        this.authSubmitBtn.querySelector('span').textContent = 'Sign In to Clyde';
+      });
+    }
+
+    if (this.tabRegisterBtn) {
+      this.tabRegisterBtn.addEventListener('click', () => {
+        this.authMode = 'register';
+        this.tabRegisterBtn.classList.add('active');
+        this.tabLoginBtn.classList.remove('active');
+        this.nameGroup.classList.remove('hidden');
+        this.authTitle.textContent = 'Create your Clyde Account';
+        this.authSubmitBtn.querySelector('span').textContent = 'Create Account';
+      });
+    }
+
+    // Auth Submit Handler
+    if (this.authSubmitBtn) {
+      this.authSubmitBtn.addEventListener('click', () => {
+        const email = this.authEmailInput.value.trim();
+        const pass = this.authPasswordInput.value.trim();
+        const name = this.authNameInput.value.trim() || email.split('@')[0];
+
+        if (!email || !pass) return alert('Please enter both email and password.');
+
+        this.loginUser({
+          id: 'usr_' + btoa(email).slice(0, 10),
+          name: this.authMode === 'register' ? name : (email.split('@')[0]),
+          email: email,
+          isGuest: false
+        });
+
+        this.authModal.classList.add('hidden');
+      });
+    }
+
+    // Social Sign In Simulation
+    if (this.googleLoginBtn) {
+      this.googleLoginBtn.addEventListener('click', () => {
+        this.loginUser({
+          id: 'usr_google_101',
+          name: 'Google User',
+          email: 'user.google@gmail.com',
+          isGuest: false
+        });
+        this.authModal.classList.add('hidden');
+      });
+    }
+
+    if (this.githubLoginBtn) {
+      this.githubLoginBtn.addEventListener('click', () => {
+        this.loginUser({
+          id: 'usr_github_202',
+          name: 'Developer Account',
+          email: 'dev.account@github.com',
+          isGuest: false
+        });
+        this.authModal.classList.add('hidden');
+      });
+    }
+
+    if (this.guestLoginBtn) {
+      this.guestLoginBtn.addEventListener('click', () => {
+        this.loginUser({
+          id: 'usr_guest',
+          name: 'Guest User',
+          email: 'guest@clyde.ai',
+          isGuest: true
+        });
+        this.authModal.classList.add('hidden');
+      });
+    }
+
+    if (this.signoutBtn) {
+      this.signoutBtn.addEventListener('click', () => {
+        this.logoutUser();
+      });
+    }
+
+    if (this.menuSettingsBtn) {
+      this.menuSettingsBtn.addEventListener('click', () => {
+        this.openSettingsModal();
+        this.sidebarUserMenu.classList.add('hidden');
+      });
+    }
 
     // Starter Prompt Cards
     document.querySelectorAll('.starter-card').forEach(card => {
@@ -201,13 +344,13 @@ class ClydeApp {
 
     if (this.clearDataBtn) {
       this.clearDataBtn.addEventListener('click', () => {
-        if (confirm('Clear all chats and data?')) {
-          localStorage.clear();
+        if (confirm('Clear all chats for current user account?')) {
           this.chats = [];
           this.activeChatId = null;
+          this.saveChats();
           this.createNewChat();
           this.settingsModal.classList.add('hidden');
-          this.showToast('All data cleared.');
+          this.showToast('Chats cleared.');
         }
       });
     }
@@ -217,10 +360,58 @@ class ClydeApp {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.chats, null, 2));
         const a = document.createElement('a');
         a.href = dataStr;
-        a.download = `clyde-chats-${Date.now()}.json`;
+        a.download = `clyde-chats-${this.currentUser.name.replace(/\s+/g, '-')}-${Date.now()}.json`;
         a.click();
-        this.showToast('Chats exported to JSON file!');
+        this.showToast('Chats exported!');
       });
+    }
+  }
+
+  openAuthModal() {
+    if (this.authModal) this.authModal.classList.remove('hidden');
+  }
+
+  loginUser(user) {
+    this.currentUser = user;
+    localStorage.setItem('clyde_user', JSON.stringify(user));
+    
+    // Load chats scoped to this user
+    this.chats = JSON.parse(localStorage.getItem(`clyde_chats_${user.id}`)) || [];
+    this.activeChatId = localStorage.getItem(`clyde_active_chat_${user.id}`) || null;
+
+    this.updateUserProfileUI();
+    this.loadState();
+    this.render();
+    this.showToast(`Logged in as ${user.name}`);
+  }
+
+  logoutUser() {
+    this.currentUser = {
+      id: 'usr_guest',
+      name: 'Guest User',
+      email: 'guest@clyde.ai',
+      isGuest: true
+    };
+    localStorage.setItem('clyde_user', JSON.stringify(this.currentUser));
+    this.chats = JSON.parse(localStorage.getItem(`clyde_chats_${this.currentUser.id}`)) || [];
+    this.activeChatId = null;
+    this.updateUserProfileUI();
+    this.loadState();
+    this.render();
+    this.showToast('Signed out of Clyde');
+  }
+
+  updateUserProfileUI() {
+    if (this.sidebarUserName) this.sidebarUserName.textContent = this.currentUser.name;
+    if (this.sidebarUserEmail) this.sidebarUserEmail.textContent = this.currentUser.email;
+    if (this.sidebarUserAvatar) this.sidebarUserAvatar.textContent = this.currentUser.name.charAt(0).toUpperCase();
+
+    if (this.headerLoginBtn) {
+      if (this.currentUser.isGuest) {
+        this.headerLoginBtn.style.display = 'flex';
+      } else {
+        this.headerLoginBtn.style.display = 'none';
+      }
     }
   }
 
@@ -232,6 +423,7 @@ class ClydeApp {
   }
 
   loadState() {
+    this.updateUserProfileUI();
     if (!this.activeChatId && this.chats.length > 0) {
       this.activeChatId = this.chats[0].id;
     }
@@ -241,8 +433,8 @@ class ClydeApp {
   }
 
   saveChats() {
-    localStorage.setItem('clyde_chats', JSON.stringify(this.chats));
-    localStorage.setItem('clyde_active_chat', this.activeChatId);
+    localStorage.setItem(`clyde_chats_${this.currentUser.id}`, JSON.stringify(this.chats));
+    localStorage.setItem(`clyde_active_chat_${this.currentUser.id}`, this.activeChatId);
   }
 
   createNewChat() {
@@ -528,7 +720,6 @@ class ClydeApp {
           </div>
         `;
 
-        // Copy button listener
         row.querySelector('.copy-btn').addEventListener('click', () => {
           navigator.clipboard.writeText(msg.content);
           this.showToast('Copied to clipboard');
