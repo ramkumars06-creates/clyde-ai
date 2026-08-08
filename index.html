@@ -37,189 +37,164 @@
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
+  <!-- 3-COLUMN FLOATING CONTAINER LAYOUT -->
   <div class="app-layout" id="app-layout">
     
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
+    <!-- =========================================================================
+         LEFT COLUMN: SIDEBAR PANEL
+         ========================================================================= -->
+    <aside class="sidebar-panel" id="sidebar">
+      <!-- Brand Header -->
+      <div class="panel-header brand-header">
         <div class="brand">
-          <div class="brand-icon">
+          <div class="brand-avatar">
             <span class="clyde-logo-mark">C</span>
           </div>
           <div class="brand-text">
-            <span class="brand-name">Clyde</span>
-            <span class="brand-badge">3.5</span>
+            <h2 class="brand-name">Clyde</h2>
+            <span class="brand-sub">Your AI Assistant</span>
           </div>
         </div>
-        <button class="icon-btn collapse-sidebar-btn" id="toggle-sidebar-btn" title="Collapse Sidebar (Ctrl+[)">
-          <i data-lucide="panel-left-close"></i>
-        </button>
       </div>
 
-      <div class="sidebar-actions">
+      <!-- Primary Action: New Chat Button -->
+      <div class="primary-btn-wrapper">
         <button class="new-chat-btn" id="new-chat-btn">
           <i data-lucide="plus"></i>
-          <span>New chat</span>
-          <span class="kbd-shortcut">Ctrl+K</span>
+          <span>New Chat</span>
         </button>
       </div>
 
-      <!-- Navigation Tabs -->
-      <div class="sidebar-nav-tabs">
-        <button class="nav-tab active" data-tab="chats" id="tab-chats-btn">
-          <i data-lucide="message-square"></i> Chats
+      <!-- Sidebar Navigation Links -->
+      <nav class="sidebar-nav">
+        <button class="nav-item active" id="nav-chats-btn">
+          <i data-lucide="message-square"></i>
+          <span>Chats</span>
         </button>
-        <button class="nav-tab" data-tab="projects" id="tab-projects-btn">
-          <i data-lucide="folder-kanban"></i> Projects
+        <button class="nav-item" id="nav-favorites-btn">
+          <i data-lucide="star"></i>
+          <span>Favorites</span>
         </button>
-      </div>
+        <button class="nav-item" id="nav-history-btn">
+          <i data-lucide="clock"></i>
+          <span>History</span>
+        </button>
+        <button class="nav-item" id="nav-settings-btn">
+          <i data-lucide="settings"></i>
+          <span>Settings</span>
+        </button>
+      </nav>
 
-      <!-- Search Input -->
-      <div class="search-box">
-        <i data-lucide="search" class="search-icon"></i>
-        <input type="text" id="chat-search-input" placeholder="Search conversations...">
-      </div>
-
-      <!-- CHATS PANEL -->
-      <div class="sidebar-content-panel active" id="chats-panel">
-        <div class="chat-history-list" id="chat-history-list">
-          <!-- Populated by JavaScript -->
-        </div>
-      </div>
-
-      <!-- PROJECTS PANEL -->
-      <div class="sidebar-content-panel" id="projects-panel">
-        <div class="projects-header">
-          <span class="section-title">Workspaces</span>
-          <button class="sm-btn" id="create-project-btn">
-            <i data-lucide="plus-circle"></i> New Project
-          </button>
-        </div>
-        <div class="projects-list" id="projects-list">
-          <!-- Populated by JavaScript -->
+      <!-- Section Title & Search -->
+      <div class="sidebar-section-header">
+        <span class="section-title">Recent Chats</span>
+        <div class="search-box-mini">
+          <input type="text" id="chat-search-input" placeholder="Search...">
         </div>
       </div>
 
-      <!-- SIDEBAR FOOTER -->
-      <div class="sidebar-footer">
-        <div class="user-profile">
-          <div class="avatar">
-            <span>U</span>
-          </div>
-          <div class="user-info">
-            <span class="user-name">User Account</span>
-            <span class="user-plan">Clyde Pro</span>
-          </div>
+      <!-- Recent Chats List -->
+      <div class="recent-chats-list" id="chat-history-list">
+        <!-- Dynamic Recent Chat Items -->
+      </div>
+
+      <!-- User Profile Footer -->
+      <div class="user-profile-card">
+        <div class="user-avatar">
+          <span>U</span>
         </div>
-        <div class="footer-actions">
-          <button class="icon-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
-            <i data-lucide="moon" id="theme-icon"></i>
-          </button>
-          <button class="icon-btn" id="settings-btn" title="Settings & API Key">
-            <i data-lucide="settings"></i>
-          </button>
+        <div class="user-details">
+          <span class="user-name">User Account</span>
+          <span class="user-email">clyde.user@example.com</span>
         </div>
+        <i data-lucide="chevron-down" class="user-chevron"></i>
       </div>
     </aside>
 
-    <!-- MAIN CHAT CONTAINER -->
-    <main class="main-content" id="main-content">
+    <!-- =========================================================================
+         CENTER COLUMN: MAIN CHAT WINDOW
+         ========================================================================= -->
+    <main class="chat-center-panel" id="main-content">
       
-      <!-- TOP NAVBAR -->
-      <header class="chat-navbar">
-        <div class="nav-left">
-          <button class="icon-btn expand-sidebar-btn" id="expand-sidebar-btn" title="Expand Sidebar">
-            <i data-lucide="panel-left"></i>
-          </button>
+      <!-- Top Header Bar -->
+      <header class="chat-header-bar">
+        <div class="header-left">
+          <div class="ai-status-group">
+            <!-- Model Selector Trigger -->
+            <div class="model-picker-wrapper">
+              <button class="model-picker-trigger" id="model-picker-btn">
+                <h2 class="chat-title" id="selected-model-title">Clyde AI</h2>
+                <i data-lucide="chevron-down" class="chevron"></i>
+              </button>
 
-          <!-- Model Picker Dropdown -->
-          <div class="model-picker-wrapper">
-            <button class="model-picker-trigger" id="model-picker-btn">
-              <div class="model-info">
-                <span class="model-title" id="selected-model-title">Clyde 3.5 Sonnet</span>
-                <span class="model-tag">Most Capable</span>
-              </div>
-              <i data-lucide="chevron-down" class="chevron"></i>
-            </button>
+              <!-- Model Dropdown -->
+              <div class="model-dropdown" id="model-dropdown">
+                <div class="dropdown-header">Select Model Engine</div>
+                <div class="model-option active" data-model="clyde-3-5-sonnet">
+                  <div class="model-option-icon sonnet"><i data-lucide="sparkles"></i></div>
+                  <div class="model-option-details">
+                    <div class="model-option-name">Clyde 3.5 Sonnet <span class="badge">Default</span></div>
+                    <div class="model-option-desc">Ideal for complex reasoning, web apps & artifacts</div>
+                  </div>
+                  <i data-lucide="check" class="check-mark"></i>
+                </div>
 
-            <div class="model-dropdown" id="model-dropdown">
-              <div class="dropdown-header">Select Model Engine</div>
-              <div class="model-option active" data-model="clyde-3-5-sonnet">
-                <div class="model-option-icon sonnet">
-                  <i data-lucide="sparkles"></i>
+                <div class="model-option" data-model="clyde-thinking">
+                  <div class="model-option-icon thinking"><i data-lucide="brain"></i></div>
+                  <div class="model-option-details">
+                    <div class="model-option-name">Clyde Thinking <span class="badge new">Extended Logic</span></div>
+                    <div class="model-option-desc">Exposes step-by-step inner reasoning monologue</div>
+                  </div>
+                  <i data-lucide="check" class="check-mark"></i>
                 </div>
-                <div class="model-option-details">
-                  <div class="model-option-name">Clyde 3.5 Sonnet <span class="badge">Default</span></div>
-                  <div class="model-option-desc">Ideal for complex reasoning, web apps, coding & artifacts</div>
-                </div>
-                <i data-lucide="check" class="check-mark"></i>
-              </div>
 
-              <div class="model-option" data-model="clyde-thinking">
-                <div class="model-option-icon thinking">
-                  <i data-lucide="brain"></i>
+                <div class="model-option" data-model="clyde-3-5-haiku">
+                  <div class="model-option-icon haiku"><i data-lucide="zap"></i></div>
+                  <div class="model-option-details">
+                    <div class="model-option-name">Clyde 3.5 Haiku</div>
+                    <div class="model-option-desc">Ultra-fast responses for quick questions</div>
+                  </div>
+                  <i data-lucide="check" class="check-mark"></i>
                 </div>
-                <div class="model-option-details">
-                  <div class="model-option-name">Clyde Thinking <span class="badge new">Extended Logic</span></div>
-                  <div class="model-option-desc">Exposes step-by-step inner reasoning monologue before answering</div>
-                </div>
-                <i data-lucide="check" class="check-mark"></i>
-              </div>
 
-              <div class="model-option" data-model="clyde-3-5-haiku">
-                <div class="model-option-icon haiku">
-                  <i data-lucide="zap"></i>
+                <div class="model-option" data-model="clyde-3-opus">
+                  <div class="model-option-icon opus"><i data-lucide="crown"></i></div>
+                  <div class="model-option-details">
+                    <div class="model-option-name">Clyde 3 Opus</div>
+                    <div class="model-option-desc">Deep research analysis & long-form writing</div>
+                  </div>
+                  <i data-lucide="check" class="check-mark"></i>
                 </div>
-                <div class="model-option-details">
-                  <div class="model-option-name">Clyde 3.5 Haiku</div>
-                  <div class="model-option-desc">Ultra-fast responses for quick questions and editing</div>
-                </div>
-                <i data-lucide="check" class="check-mark"></i>
-              </div>
-
-              <div class="model-option" data-model="clyde-3-opus">
-                <div class="model-option-icon opus">
-                  <i data-lucide="crown"></i>
-                </div>
-                <div class="model-option-details">
-                  <div class="model-option-name">Clyde 3 Opus</div>
-                  <div class="model-option-desc">Deep nuanced writing, research analysis & long-form text</div>
-                </div>
-                <i data-lucide="check" class="check-mark"></i>
               </div>
             </div>
-          </div>
 
-          <!-- Active Project Badge (if any) -->
-          <div class="active-project-indicator hidden" id="active-project-indicator">
-            <i data-lucide="folder"></i>
-            <span id="active-project-name">Project Name</span>
-            <button class="remove-project-btn" id="detach-project-btn" title="Leave project context">&times;</button>
+            <span class="status-indicator">
+              <span class="status-dot"></span> Online
+            </span>
           </div>
         </div>
 
-        <div class="nav-right">
-          <!-- Canvas Toggle Button -->
-          <button class="nav-action-btn" id="toggle-canvas-btn" title="Toggle Artifacts Split View">
-            <i data-lucide="layout-sidepanel"></i>
-            <span>Artifacts</span>
-            <span class="badge-dot hidden" id="canvas-badge-dot"></span>
+        <div class="header-right-actions">
+          <button class="header-icon-btn" id="search-modal-trigger" title="Search Chat History">
+            <i data-lucide="search"></i>
+          </button>
+          <button class="header-icon-btn" id="theme-toggle-btn" title="Toggle Theme">
+            <i data-lucide="moon" id="theme-icon"></i>
+          </button>
+          <button class="header-icon-btn" id="toggle-canvas-btn" title="Toggle Right Panel Canvas">
+            <i data-lucide="maximize-2"></i>
           </button>
         </div>
       </header>
 
-      <!-- CHAT MESSAGES SCROLL AREA -->
+      <!-- Chat Scroll Container -->
       <div class="messages-container" id="messages-container">
         
-        <!-- WELCOME SCREEN (Shown when conversation is empty) -->
+        <!-- Welcome Screen (When empty) -->
         <div class="welcome-screen" id="welcome-screen">
-          <div class="welcome-header">
-            <div class="welcome-logo">
-              <span class="welcome-mark">C</span>
-            </div>
-            <h1 class="welcome-title">Good day. How can Clyde help you?</h1>
-            <p class="welcome-subtitle">Ask questions, analyze documents, write code, or create interactive Artifacts side-by-side.</p>
-          </div>
+          <div class="welcome-badge"><span class="clyde-logo-mark">C</span></div>
+          <h1 class="welcome-title">Good day. How can Clyde help you?</h1>
+          <p class="welcome-subtitle">Ask questions, analyze documents, write code, or create interactive Artifacts side-by-side.</p>
 
           <div class="starter-cards-grid">
             <button class="starter-card" data-prompt="Build an interactive memory card matching game using HTML, CSS, and JS with smooth animations.">
@@ -256,17 +231,20 @@
           </div>
         </div>
 
-        <!-- MESSAGES FEED -->
+        <!-- Date Divider Pill -->
+        <div class="date-divider-wrapper" id="date-divider">
+          <span class="date-divider-pill">Today</span>
+        </div>
+
+        <!-- Message Feed -->
         <div class="messages-feed" id="messages-feed">
-          <!-- Dynamic Message Bubbles render here -->
+          <!-- Dynamic User & Clyde message bubbles render here -->
         </div>
 
       </div>
 
-      <!-- INPUT BAR CONTAINER -->
-      <div class="input-area-wrapper">
-        
-        <!-- Style / Persona Quick Chips -->
+      <!-- Floating Input Bar -->
+      <div class="input-container-wrapper">
         <div class="style-chips-bar" id="style-chips-bar">
           <span class="chip-label">Style:</span>
           <button class="chip active" data-style="normal">Normal</button>
@@ -276,105 +254,139 @@
           <button class="chip" data-style="code-heavy">Code Heavy</button>
         </div>
 
-        <!-- Attachment Previews Box -->
-        <div class="attachments-preview-bar hidden" id="attachments-preview-bar">
-          <!-- Files & Images preview cards -->
-        </div>
+        <div class="attachments-preview-bar hidden" id="attachments-preview-bar"></div>
 
-        <!-- Main Input Card -->
-        <div class="input-card" id="input-card">
-          <textarea 
-            id="chat-input" 
-            placeholder="Reply to Clyde or upload documents & images..."
-            rows="1"
-          ></textarea>
+        <div class="floating-input-card">
+          <textarea id="chat-input" placeholder="Type your message..." rows="1"></textarea>
+          
+          <div class="input-actions-group">
+            <input type="file" id="file-upload-input" multiple accept="image/*,.txt,.md,.js,.py,.html,.css,.json,.csv,.pdf" class="hidden">
+            <button class="input-icon-btn" id="upload-btn" title="Attach file or image">
+              <i data-lucide="paperclip"></i>
+            </button>
 
-          <div class="input-controls-row">
-            <div class="controls-left">
-              <!-- File / Image Upload Button -->
-              <input type="file" id="file-upload-input" multiple accept="image/*,.txt,.md,.js,.py,.html,.css,.json,.csv,.pdf" class="hidden">
-              <button class="icon-btn-text" id="upload-btn" title="Attach image or file">
-                <i data-lucide="paperclip"></i>
-                <span>Attach</span>
-              </button>
+            <span class="token-counter" id="token-counter">0 tokens</span>
 
-              <button class="icon-btn-text" id="project-attach-btn" title="Attach project knowledge context">
-                <i data-lucide="folder-plus"></i>
-                <span>Context</span>
-              </button>
-
-              <span class="token-counter" id="token-counter">0 tokens (~$0.00)</span>
-            </div>
-
-            <div class="controls-right">
-              <button class="send-btn" id="send-btn" title="Send message (Enter)">
-                <i data-lucide="arrow-up"></i>
-              </button>
-            </div>
+            <button class="send-btn" id="send-btn" title="Send message">
+              <i data-lucide="send"></i>
+            </button>
           </div>
         </div>
-        
-        <div class="input-footer-note">
-          <span>Clyde 3.5 can make mistakes. Verify important code & information.</span>
-        </div>
       </div>
+
     </main>
 
-    <!-- ARTIFACTS SPLIT-SCREEN CANVAS PANEL -->
-    <aside class="artifacts-panel" id="artifacts-panel">
-      <div class="artifacts-header">
-        <div class="artifact-title-wrapper">
-          <div class="artifact-type-badge" id="artifact-type-badge">
-            <i data-lucide="code-2"></i>
-            <span id="artifact-type-name">HTML Application</span>
+    <!-- =========================================================================
+         RIGHT COLUMN: INFO & ARTIFACTS PANEL
+         ========================================================================= -->
+    <aside class="right-info-panel" id="right-info-panel">
+      
+      <!-- MODE A: ABOUT & CAPABILITIES (DEFAULT) -->
+      <div class="info-panel-content" id="info-panel-default">
+        <!-- About Card -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-card-icon blue"><i data-lucide="info"></i></div>
+            <h3>About this Chatbot</h3>
           </div>
-          <h3 class="artifact-title" id="artifact-title">Interactive Preview</h3>
+          <p class="info-card-text">
+            This AI assistant is here to help you with answers, ideas, explanations, coding, and creating live web Artifacts. Ask anything!
+          </p>
         </div>
 
-        <div class="artifact-header-actions">
-          <!-- Tab View Switcher -->
-          <div class="artifact-view-tabs">
-            <button class="artifact-tab active" data-view="preview" id="artifact-tab-preview">
-              <i data-lucide="eye"></i> Preview
-            </button>
-            <button class="artifact-tab" data-view="code" id="artifact-tab-code">
-              <i data-lucide="code"></i> Code
-            </button>
+        <!-- Capabilities Card -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-card-icon purple"><i data-lucide="sparkles"></i></div>
+            <h3>Capabilities</h3>
           </div>
 
-          <button class="icon-btn" id="artifact-copy-btn" title="Copy Code">
-            <i data-lucide="copy"></i>
-          </button>
-          <button class="icon-btn" id="artifact-download-btn" title="Download File">
-            <i data-lucide="download"></i>
-          </button>
-          <button class="icon-btn" id="artifact-expand-btn" title="Toggle Fullscreen Canvas">
-            <i data-lucide="maximize-2"></i>
-          </button>
-          <button class="icon-btn" id="artifact-close-btn" title="Close Canvas">
-            <i data-lucide="x"></i>
-          </button>
+          <div class="capabilities-list">
+            <div class="capability-item">
+              <div class="cap-icon"><i data-lucide="compass"></i></div>
+              <div class="cap-details">
+                <span class="cap-title">Answer Questions</span>
+                <span class="cap-sub">Get accurate, in-depth answers</span>
+              </div>
+            </div>
+
+            <div class="capability-item">
+              <div class="cap-icon"><i data-lucide="lightbulb"></i></div>
+              <div class="cap-details">
+                <span class="cap-title">Explain Concepts</span>
+                <span class="cap-sub">Simplify complex math & science</span>
+              </div>
+            </div>
+
+            <div class="capability-item">
+              <div class="cap-icon"><i data-lucide="brain-circuit"></i></div>
+              <div class="cap-details">
+                <span class="cap-title">Generate Ideas</span>
+                <span class="cap-sub">Brainstorm and create strategies</span>
+              </div>
+            </div>
+
+            <div class="capability-item">
+              <div class="cap-icon"><i data-lucide="code-2"></i></div>
+              <div class="cap-details">
+                <span class="cap-title">Code Assistance</span>
+                <span class="cap-sub">Build interactive Artifact web apps</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tips Card -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-card-icon amber"><i data-lucide="zap"></i></div>
+            <h3>Tips</h3>
+          </div>
+          <ul class="tips-list">
+            <li>Be clear and specific in your questions for better answers.</li>
+            <li>You can ask follow-up questions anytime.</li>
+            <li>Use examples or code snippets for accurate responses.</li>
+          </ul>
+        </div>
+
+        <!-- Footer Card -->
+        <div class="info-footer-card">
+          <span>Made with <span class="heart">♥</span> for a better experience</span>
         </div>
       </div>
 
-      <!-- ARTIFACT BODY -->
-      <div class="artifacts-body">
-        
-        <!-- PREVIEW TAB CONTAINER -->
-        <div class="artifact-view-content active" id="artifact-preview-container">
-          <!-- Dynamic Sandboxed Iframe or Rendered Diagram/Markdown -->
-          <iframe id="artifact-iframe" class="artifact-iframe" sandbox="allow-scripts allow-modals allow-forms allow-same-origin"></iframe>
-          <div id="artifact-mermaid-render" class="artifact-mermaid-container hidden"></div>
-          <div id="artifact-svg-render" class="artifact-svg-container hidden"></div>
-          <div id="artifact-markdown-render" class="artifact-markdown-container hidden"></div>
+      <!-- MODE B: ARTIFACTS CANVAS PREVIEW (ACTIVE WHEN CODE GENERATED) -->
+      <div class="artifacts-canvas-content hidden" id="artifacts-canvas-container">
+        <div class="artifact-panel-header">
+          <div class="artifact-title-wrapper">
+            <span class="artifact-type-badge" id="artifact-type-name">HTML App</span>
+            <h4 class="artifact-title" id="artifact-title">Interactive Preview</h4>
+          </div>
+          <div class="artifact-header-actions">
+            <div class="artifact-view-tabs">
+              <button class="artifact-tab active" id="artifact-tab-preview" data-view="preview"><i data-lucide="eye"></i> Preview</button>
+              <button class="artifact-tab" id="artifact-tab-code" data-view="code"><i data-lucide="code"></i> Code</button>
+            </div>
+            <button class="icon-btn" id="artifact-copy-btn" title="Copy Code"><i data-lucide="copy"></i></button>
+            <button class="icon-btn" id="artifact-download-btn" title="Download File"><i data-lucide="download"></i></button>
+            <button class="icon-btn" id="artifact-close-btn" title="Close Canvas"><i data-lucide="x"></i></button>
+          </div>
         </div>
 
-        <!-- CODE TAB CONTAINER -->
-        <div class="artifact-view-content" id="artifact-code-container">
-          <pre><code id="artifact-code-block" class="language-html"></code></pre>
-        </div>
+        <div class="artifacts-panel-body">
+          <div class="artifact-view-content active" id="artifact-preview-container">
+            <iframe id="artifact-iframe" class="artifact-iframe" sandbox="allow-scripts allow-modals allow-forms allow-same-origin"></iframe>
+            <div id="artifact-mermaid-render" class="artifact-mermaid-container hidden"></div>
+            <div id="artifact-svg-render" class="artifact-svg-container hidden"></div>
+            <div id="artifact-markdown-render" class="artifact-markdown-container hidden"></div>
+          </div>
 
+          <div class="artifact-view-content" id="artifact-code-container">
+            <pre><code id="artifact-code-block" class="language-html"></code></pre>
+          </div>
+        </div>
       </div>
+
     </aside>
 
   </div>
@@ -401,7 +413,6 @@
         <div class="setting-group hidden" id="api-key-group">
           <label for="api-key-input">API Key</label>
           <input type="password" id="api-key-input" class="modal-input" placeholder="Paste your API key here (e.g. AIzaSy...)">
-          <p class="setting-help">API Keys are stored securely in your browser's LocalStorage and never sent to external servers.</p>
         </div>
 
         <div class="setting-group">
@@ -429,51 +440,6 @@
     </div>
   </div>
 
-  <!-- PROJECT CREATION / EDIT MODAL -->
-  <div class="modal-overlay hidden" id="project-modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2><i data-lucide="folder-plus"></i> Create Workspace Project</h2>
-        <button class="icon-btn close-modal-btn" id="close-project-btn">&times;</button>
-      </div>
-
-      <div class="modal-body">
-        <div class="setting-group">
-          <label for="project-name-input">Project Name</label>
-          <input type="text" id="project-name-input" class="modal-input" placeholder="e.g., E-Commerce React Frontend">
-        </div>
-
-        <div class="setting-group">
-          <label for="project-desc-input">Description</label>
-          <input type="text" id="project-desc-input" class="modal-input" placeholder="Brief project summary">
-        </div>
-
-        <div class="setting-group">
-          <label for="project-instructions-input">Project Custom Instructions</label>
-          <textarea id="project-instructions-input" class="modal-textarea" rows="3" placeholder="Specify project rules, tech stack (e.g., Use React + Tailwind), target audience, or coding conventions..."></textarea>
-        </div>
-
-        <div class="setting-group">
-          <label>Knowledge Files (Context)</label>
-          <div class="project-files-dropzone" id="project-files-dropzone">
-            <i data-lucide="upload-cloud"></i>
-            <span>Drag & drop project docs, code files or text snippets here</span>
-            <input type="file" id="project-file-input" multiple class="hidden">
-          </div>
-          <ul class="project-files-list" id="project-files-list">
-            <!-- List of attached project files -->
-          </ul>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="modal-sec-btn close-modal-btn" id="cancel-project-btn">Cancel</button>
-        <button class="modal-primary-btn" id="save-project-btn">Save Project Workspace</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notification Container -->
   <div class="toast-container" id="toast-container"></div>
 
   <!-- Main JavaScript Modules -->

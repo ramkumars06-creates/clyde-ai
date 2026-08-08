@@ -1,15 +1,12 @@
 /**
  * CLYDE MAIN APPLICATION CONTROLLER
- * Handles UI interactions, chat management, projects, message rendering,
- * attachments, math parsing, themes, and persistence.
+ * 3-Column Floating Panel Layout Implementation.
  */
 
 class ClydeApp {
   constructor() {
     this.chats = JSON.parse(localStorage.getItem('clyde_chats')) || [];
-    this.projects = JSON.parse(localStorage.getItem('clyde_projects')) || [];
     this.activeChatId = localStorage.getItem('clyde_active_chat') || null;
-    this.activeProjectId = null;
 
     this.activeModel = 'clyde-3-5-sonnet';
     this.activeStyle = 'normal';
@@ -25,8 +22,6 @@ class ClydeApp {
 
   initDOM() {
     this.sidebar = document.getElementById('sidebar');
-    this.toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
-    this.expandSidebarBtn = document.getElementById('expand-sidebar-btn');
     this.newChatBtn = document.getElementById('new-chat-btn');
 
     this.modelPickerBtn = document.getElementById('model-picker-btn');
@@ -45,17 +40,12 @@ class ClydeApp {
     this.tokenCounter = document.getElementById('token-counter');
 
     this.historyList = document.getElementById('chat-history-list');
-    this.projectsList = document.getElementById('projects-list');
     this.chatSearchInput = document.getElementById('chat-search-input');
-
-    this.activeProjectIndicator = document.getElementById('active-project-indicator');
-    this.activeProjectName = document.getElementById('active-project-name');
-    this.detachProjectBtn = document.getElementById('detach-project-btn');
 
     this.themeToggleBtn = document.getElementById('theme-toggle-btn');
     this.themeIcon = document.getElementById('theme-icon');
 
-    this.settingsBtn = document.getElementById('settings-btn');
+    this.navSettingsBtn = document.getElementById('nav-settings-btn');
     this.settingsModal = document.getElementById('settings-modal');
     this.closeSettingsBtns = document.querySelectorAll('#close-settings-btn, #cancel-settings-btn');
     this.saveSettingsBtn = document.getElementById('save-settings-btn');
@@ -65,14 +55,6 @@ class ClydeApp {
     this.customSystemPromptInput = document.getElementById('custom-system-prompt');
     this.clearDataBtn = document.getElementById('clear-data-btn');
     this.exportChatsBtn = document.getElementById('export-chats-btn');
-
-    this.createProjectBtn = document.getElementById('create-project-btn');
-    this.projectModal = document.getElementById('project-modal');
-    this.closeProjectBtns = document.querySelectorAll('#close-project-btn, #cancel-project-btn');
-    this.saveProjectBtn = document.getElementById('save-project-btn');
-    this.projectNameInput = document.getElementById('project-name-input');
-    this.projectDescInput = document.getElementById('project-desc-input');
-    this.projectInstructionsInput = document.getElementById('project-instructions-input');
 
     this.toggleCanvasBtn = document.getElementById('toggle-canvas-btn');
   }
@@ -91,26 +73,26 @@ class ClydeApp {
   }
 
   initEventListeners() {
-    // Sidebar Toggles
-    this.toggleSidebarBtn.addEventListener('click', () => this.sidebar.classList.add('collapsed'));
-    this.expandSidebarBtn.addEventListener('click', () => this.sidebar.classList.remove('collapsed'));
-    this.newChatBtn.addEventListener('click', () => this.createNewChat());
+    // New Chat Button
+    if (this.newChatBtn) this.newChatBtn.addEventListener('click', () => this.createNewChat());
 
-    // Sidebar Navigation Tabs (Chats / Projects)
-    document.querySelectorAll('.sidebar-nav-tabs .nav-tab').forEach(tab => {
-      tab.addEventListener('click', (e) => {
-        document.querySelectorAll('.sidebar-nav-tabs .nav-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.sidebar-content-panel').forEach(p => p.classList.remove('active'));
+    // Navigation Tabs
+    document.querySelectorAll('.sidebar-nav .nav-item').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-nav .nav-item').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        const target = tab.dataset.tab;
-        document.getElementById(`${target}-panel`).classList.add('active');
+        if (tab.id === 'nav-settings-btn') {
+          this.openSettingsModal();
+        }
       });
     });
 
     // Model Picker Dropdown
-    this.modelPickerBtn.addEventListener('click', () => {
-      this.modelPickerBtn.parentElement.classList.toggle('open');
-    });
+    if (this.modelPickerBtn) {
+      this.modelPickerBtn.addEventListener('click', () => {
+        this.modelPickerBtn.parentElement.classList.toggle('open');
+      });
+    }
 
     document.querySelectorAll('.model-option').forEach(opt => {
       opt.addEventListener('click', () => {
@@ -125,7 +107,7 @@ class ClydeApp {
     // Close model picker if clicked outside
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.model-picker-wrapper')) {
-        this.modelPickerBtn.parentElement.classList.remove('open');
+        if (this.modelPickerBtn) this.modelPickerBtn.parentElement.classList.remove('open');
       }
     });
 
@@ -157,125 +139,96 @@ class ClydeApp {
 
     this.chatInput.addEventListener('input', () => {
       this.chatInput.style.height = 'auto';
-      this.chatInput.style.height = Math.min(this.chatInput.scrollHeight, 200) + 'px';
+      this.chatInput.style.height = Math.min(this.chatInput.scrollHeight, 140) + 'px';
       this.updateTokenCounter();
     });
 
-    this.sendBtn.addEventListener('click', () => this.sendMessage());
+    if (this.sendBtn) this.sendBtn.addEventListener('click', () => this.sendMessage());
 
     // File Upload Attachment
-    this.uploadBtn.addEventListener('click', () => this.fileUploadInput.click());
-    this.fileUploadInput.addEventListener('change', (e) => this.handleFileUpload(e));
+    if (this.uploadBtn) this.uploadBtn.addEventListener('click', () => this.fileUploadInput.click());
+    if (this.fileUploadInput) this.fileUploadInput.addEventListener('change', (e) => this.handleFileUpload(e));
 
-    // Canvas Toggle Button
-    this.toggleCanvasBtn.addEventListener('click', () => {
-      if (window.artifactsPanel) {
-        window.artifactsPanel.panel.classList.toggle('open');
-      }
-    });
+    // Toggle Right Panel Canvas
+    if (this.toggleCanvasBtn) {
+      this.toggleCanvasBtn.addEventListener('click', () => {
+        if (window.artifactsPanel) {
+          if (window.artifactsPanel.canvasContainer.classList.contains('hidden')) {
+            window.artifactsPanel.defaultInfoPanel.classList.add('hidden');
+            window.artifactsPanel.canvasContainer.classList.remove('hidden');
+          } else {
+            window.artifactsPanel.canvasContainer.classList.add('hidden');
+            window.artifactsPanel.defaultInfoPanel.classList.remove('hidden');
+          }
+        }
+      });
+    }
 
     // Theme Toggle
-    this.themeToggleBtn.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('clyde_theme', next);
-      this.updateThemeIcon(next);
-    });
+    if (this.themeToggleBtn) {
+      this.themeToggleBtn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('clyde_theme', next);
+        this.updateThemeIcon(next);
+      });
+    }
 
     // Search History Filter
-    this.chatSearchInput.addEventListener('input', (e) => {
-      this.filterChatHistory(e.target.value);
-    });
+    if (this.chatSearchInput) {
+      this.chatSearchInput.addEventListener('input', (e) => {
+        this.filterChatHistory(e.target.value);
+      });
+    }
 
     // Settings Modal
-    this.settingsBtn.addEventListener('click', () => {
-      this.apiProviderSelect.value = localStorage.getItem('clyde_api_provider') || 'simulator';
-      this.apiKeyInput.value = localStorage.getItem('clyde_api_key') || '';
-      this.customSystemPromptInput.value = localStorage.getItem('clyde_system_prompt') || '';
-      this.toggleApiKeyVisibility();
-      this.settingsModal.classList.remove('hidden');
-    });
+    if (this.closeSettingsBtns) {
+      this.closeSettingsBtns.forEach(btn => btn.addEventListener('click', () => this.settingsModal.classList.add('hidden')));
+    }
 
-    this.apiProviderSelect.addEventListener('change', () => this.toggleApiKeyVisibility());
-
-    this.closeSettingsBtns.forEach(btn => {
-      btn.addEventListener('click', () => this.settingsModal.classList.add('hidden'));
-    });
-
-    this.saveSettingsBtn.addEventListener('click', () => {
-      const provider = this.apiProviderSelect.value;
-      const key = this.apiKeyInput.value.trim();
-      const prompt = this.customSystemPromptInput.value.trim();
-      window.clydeEngine.setProvider(provider, key);
-      window.clydeEngine.setSystemPrompt(prompt);
-      this.settingsModal.classList.add('hidden');
-      this.showToast('Settings saved successfully!');
-    });
-
-    this.clearDataBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to clear all chats and workspace data?')) {
-        localStorage.clear();
-        this.chats = [];
-        this.projects = [];
-        this.activeChatId = null;
-        this.createNewChat();
+    if (this.saveSettingsBtn) {
+      this.saveSettingsBtn.addEventListener('click', () => {
+        const provider = this.apiProviderSelect.value;
+        const key = this.apiKeyInput.value.trim();
+        const prompt = this.customSystemPromptInput.value.trim();
+        window.clydeEngine.setProvider(provider, key);
+        window.clydeEngine.setSystemPrompt(prompt);
         this.settingsModal.classList.add('hidden');
-        this.showToast('All local storage cleared.');
-      }
-    });
+        this.showToast('Settings saved!');
+      });
+    }
 
-    this.exportChatsBtn.addEventListener('click', () => {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.chats, null, 2));
-      const a = document.createElement('a');
-      a.href = dataStr;
-      a.download = `clyde-chats-export-${Date.now()}.json`;
-      a.click();
-      this.showToast('Chats exported to JSON file!');
-    });
+    if (this.clearDataBtn) {
+      this.clearDataBtn.addEventListener('click', () => {
+        if (confirm('Clear all chats and data?')) {
+          localStorage.clear();
+          this.chats = [];
+          this.activeChatId = null;
+          this.createNewChat();
+          this.settingsModal.classList.add('hidden');
+          this.showToast('All data cleared.');
+        }
+      });
+    }
 
-    // Project Workspace Modal
-    this.createProjectBtn.addEventListener('click', () => this.projectModal.classList.remove('hidden'));
-    this.closeProjectBtns.forEach(btn => btn.addEventListener('click', () => this.projectModal.classList.add('hidden')));
-
-    this.saveProjectBtn.addEventListener('click', () => {
-      const name = this.projectNameInput.value.trim();
-      const desc = this.projectDescInput.value.trim();
-      const instructions = this.projectInstructionsInput.value.trim();
-      if (!name) return alert('Please enter a project name.');
-
-      const newProj = { id: 'proj_' + Date.now(), name, desc, instructions, files: [] };
-      this.projects.push(newProj);
-      this.saveProjects();
-      this.renderProjectsList();
-      this.projectModal.classList.add('hidden');
-      this.projectNameInput.value = '';
-      this.projectDescInput.value = '';
-      this.projectInstructionsInput.value = '';
-      this.showToast(`Workspace project "${name}" created!`);
-    });
-
-    this.detachProjectBtn.addEventListener('click', () => {
-      this.activeProjectId = null;
-      this.activeProjectIndicator.classList.add('hidden');
-      this.showToast('Left project context');
-    });
-
-    // Global Shortcuts
-    document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && e.key === 'k') {
-        e.preventDefault();
-        this.chatSearchInput.focus();
-      }
-    });
+    if (this.exportChatsBtn) {
+      this.exportChatsBtn.addEventListener('click', () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.chats, null, 2));
+        const a = document.createElement('a');
+        a.href = dataStr;
+        a.download = `clyde-chats-${Date.now()}.json`;
+        a.click();
+        this.showToast('Chats exported to JSON file!');
+      });
+    }
   }
 
-  toggleApiKeyVisibility() {
-    if (this.apiProviderSelect.value !== 'simulator') {
-      this.apiKeyGroup.classList.remove('hidden');
-    } else {
-      this.apiKeyGroup.classList.add('hidden');
-    }
+  openSettingsModal() {
+    this.apiProviderSelect.value = localStorage.getItem('clyde_api_provider') || 'simulator';
+    this.apiKeyInput.value = localStorage.getItem('clyde_api_key') || '';
+    this.customSystemPromptInput.value = localStorage.getItem('clyde_system_prompt') || '';
+    this.settingsModal.classList.remove('hidden');
   }
 
   loadState() {
@@ -290,10 +243,6 @@ class ClydeApp {
   saveChats() {
     localStorage.setItem('clyde_chats', JSON.stringify(this.chats));
     localStorage.setItem('clyde_active_chat', this.activeChatId);
-  }
-
-  saveProjects() {
-    localStorage.setItem('clyde_projects', JSON.stringify(this.projects));
   }
 
   createNewChat() {
@@ -323,10 +272,11 @@ class ClydeApp {
     const chat = this.getActiveChat();
     if (!chat) return;
 
-    // Set title on first message
     if (chat.messages.length === 0) {
-      chat.title = text.slice(0, 30) || 'Attachment Analysis';
+      chat.title = text.slice(0, 26) || 'Attachment Analysis';
     }
+
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     // Create User Message
     const userMsg = {
@@ -334,7 +284,7 @@ class ClydeApp {
       role: 'user',
       content: text,
       attachments: [...this.attachments],
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: timeStr
     };
 
     chat.messages.push(userMsg);
@@ -344,7 +294,7 @@ class ClydeApp {
     this.renderAttachmentsPreview();
     this.renderMessagesFeed();
 
-    // Prepare Clyde AI Response placeholder
+    // Create Clyde AI Response placeholder
     const clydeMsgId = 'msg_' + (Date.now() + 1);
     const clydeMsg = {
       id: clydeMsgId,
@@ -357,15 +307,10 @@ class ClydeApp {
     chat.messages.push(clydeMsg);
 
     this.isGenerating = true;
-    this.sendBtn.classList.add('generating');
     this.sendBtn.innerHTML = `<i data-lucide="square"></i>`;
     if (window.lucide) lucide.createIcons();
 
-    // Scroll to bottom
     this.scrollToBottom();
-
-    // Call Engine Stream
-    const projectContext = this.projects.find(p => p.id === this.activeProjectId);
 
     window.clydeEngine.generateStream(
       {
@@ -373,30 +318,23 @@ class ClydeApp {
         history: chat.messages,
         model: this.activeModel,
         style: this.activeStyle,
-        projectContext,
         attachments: userMsg.attachments
       },
-      // On Chunk
       (chunk) => {
         clydeMsg.content += chunk;
         this.updateClydeMessageBubble(clydeMsgId, clydeMsg.content, clydeMsg.thinking);
         this.scrollToBottom();
       },
-      // On Thinking
       (thinkingText) => {
         clydeMsg.thinking = thinkingText;
         this.updateClydeMessageBubble(clydeMsgId, clydeMsg.content, clydeMsg.thinking);
       },
-      // On Complete
       (fullText) => {
         this.isGenerating = false;
-        this.sendBtn.classList.remove('generating');
-        this.sendBtn.innerHTML = `<i data-lucide="arrow-up"></i>`;
+        this.sendBtn.innerHTML = `<i data-lucide="send"></i>`;
         if (window.lucide) lucide.createIcons();
         this.saveChats();
         this.renderHistoryList();
-
-        // Check if response contains an Artifact to auto-extract
         this.checkForArtifactsInMessage(fullText);
       }
     );
@@ -413,33 +351,27 @@ class ClydeApp {
     if (!bubble) return;
 
     let html = '';
-
-    // Render Collapsible Thinking Accordion if present
     if (thinking) {
       html += `
         <div class="thinking-accordion open">
           <div class="thinking-header" onclick="this.parentElement.classList.toggle('open')">
-            <i data-lucide="brain"></i> Thought Process & Logic
+            <i data-lucide="brain" style="width:14px;height:14px;color:#8b5cf6;"></i> Thought Process & Logic
           </div>
           <div class="thinking-body">${thinking}</div>
         </div>
       `;
     }
 
-    // Parse Markdown text
     const parsedMarkdown = window.marked ? marked.parse(content) : content;
     html += parsedMarkdown;
-
     bubble.innerHTML = html;
 
-    // Highlight code blocks
     bubble.querySelectorAll('pre code').forEach(block => {
       if (window.hljs && !block.dataset.highlighted) {
         hljs.highlightElement(block);
       }
     });
 
-    // Render KaTeX Math
     if (window.renderMathInElement) {
       renderMathInElement(bubble, {
         delimiters: [
@@ -454,7 +386,6 @@ class ClydeApp {
   }
 
   checkForArtifactsInMessage(text) {
-    // Detect HTML, SVG, or Mermaid code blocks
     const htmlMatch = text.match(/```html\n([\s\S]*?)\n```/);
     const svgMatch = text.match(/```svg\n([\s\S]*?)\n```/);
     const mermaidMatch = text.match(/```mermaid\n([\s\S]*?)\n```/);
@@ -485,7 +416,6 @@ class ClydeApp {
 
   render() {
     this.renderHistoryList();
-    this.renderProjectsList();
     this.renderMessagesFeed();
     if (window.lucide) lucide.createIcons();
   }
@@ -493,35 +423,30 @@ class ClydeApp {
   renderHistoryList() {
     this.historyList.innerHTML = '';
     if (this.chats.length === 0) {
-      this.historyList.innerHTML = `<div style="padding: 12px; font-size:12px; color:var(--text-muted);">No chat history yet.</div>`;
+      this.historyList.innerHTML = `<div style="padding: 10px; font-size:12px; color:var(--text-muted);">No chat history yet.</div>`;
       return;
     }
 
-    const groupTitle = document.createElement('div');
-    groupTitle.className = 'chat-history-group-title';
-    groupTitle.textContent = 'Recent Conversations';
-    this.historyList.appendChild(groupTitle);
+    const mockTimes = ['10:30 AM', 'Yesterday', '2 Days ago', '3 Days ago', '5 Days ago'];
 
-    this.chats.forEach(chat => {
-      const item = document.createElement('button');
-      item.className = `chat-item ${chat.id === this.activeChatId ? 'active' : ''}`;
+    this.chats.forEach((chat, idx) => {
+      const item = document.createElement('div');
+      item.className = `recent-chat-item ${chat.id === this.activeChatId ? 'active' : ''}`;
+      
+      const timeTag = mockTimes[idx % mockTimes.length];
+
       item.innerHTML = `
-        <i data-lucide="message-square" style="width:15px;height:15px;"></i>
-        <span class="chat-title">${chat.title}</span>
-        <div class="chat-item-actions">
-          <span class="chat-action-btn delete-chat-btn" title="Delete Chat">&times;</span>
+        <div class="recent-chat-left">
+          <i data-lucide="message-square"></i>
+          <span class="recent-chat-title">${chat.title}</span>
         </div>
+        <span class="recent-chat-time">${timeTag}</span>
       `;
 
-      item.addEventListener('click', (e) => {
-        if (e.target.classList.contains('delete-chat-btn')) {
-          e.stopPropagation();
-          this.deleteChat(chat.id);
-        } else {
-          this.activeChatId = chat.id;
-          this.saveChats();
-          this.render();
-        }
+      item.addEventListener('click', () => {
+        this.activeChatId = chat.id;
+        this.saveChats();
+        this.render();
       });
 
       this.historyList.appendChild(item);
@@ -530,45 +455,9 @@ class ClydeApp {
 
   filterChatHistory(query) {
     const q = query.toLowerCase();
-    document.querySelectorAll('.chat-item').forEach(item => {
-      const text = item.querySelector('.chat-title').textContent.toLowerCase();
+    document.querySelectorAll('.recent-chat-item').forEach(item => {
+      const text = item.querySelector('.recent-chat-title').textContent.toLowerCase();
       item.style.display = text.includes(q) ? 'flex' : 'none';
-    });
-  }
-
-  deleteChat(chatId) {
-    this.chats = this.chats.filter(c => c.id !== chatId);
-    if (this.activeChatId === chatId) {
-      this.activeChatId = this.chats.length > 0 ? this.chats[0].id : null;
-    }
-    this.saveChats();
-    this.render();
-    this.showToast('Chat deleted.');
-  }
-
-  renderProjectsList() {
-    this.projectsList.innerHTML = '';
-    if (this.projects.length === 0) {
-      this.projectsList.innerHTML = `<div style="padding:12px; font-size:12px; color:var(--text-muted);">No workspace projects. Create one above!</div>`;
-      return;
-    }
-
-    this.projects.forEach(proj => {
-      const card = document.createElement('div');
-      card.className = 'project-card';
-      card.innerHTML = `
-        <div class="project-card-name"><i data-lucide="folder"></i> ${proj.name}</div>
-        <div class="project-card-desc">${proj.desc || 'Custom workspace instructions & files'}</div>
-      `;
-
-      card.addEventListener('click', () => {
-        this.activeProjectId = proj.id;
-        this.activeProjectName.textContent = proj.name;
-        this.activeProjectIndicator.classList.remove('hidden');
-        this.showToast(`Switched context to project "${proj.name}"`);
-      });
-
-      this.projectsList.appendChild(card);
     });
   }
 
@@ -588,52 +477,67 @@ class ClydeApp {
       row.className = `message-row ${msg.role}`;
       row.id = msg.id;
 
-      const avatarSymbol = msg.role === 'user' ? 'U' : 'C';
+      let bubbleContent = '';
+      let metaRow = '';
 
-      let innerContent = '';
       if (msg.role === 'user') {
-        innerContent = `<div class="message-bubble">${msg.content}</div>`;
+        bubbleContent = `<div class="message-bubble">${msg.content}</div>`;
+        metaRow = `
+          <div class="message-meta-row">
+            <span class="message-time">${msg.timestamp || '10:30 AM'}</span>
+            <span class="read-receipt" title="Delivered & Read">✓✓</span>
+          </div>
+        `;
+        row.innerHTML = `
+          <div class="message-bubble-wrapper">
+            ${bubbleContent}
+            ${metaRow}
+          </div>
+        `;
       } else {
         let thinkingHtml = '';
         if (msg.thinking) {
           thinkingHtml = `
             <div class="thinking-accordion">
               <div class="thinking-header" onclick="this.parentElement.classList.toggle('open')">
-                <i data-lucide="brain"></i> Thought Process & Logic
+                <i data-lucide="brain" style="width:14px;height:14px;color:#8b5cf6;"></i> Thought Process & Logic
               </div>
               <div class="thinking-body">${msg.thinking}</div>
             </div>
           `;
         }
         const parsedMarkdown = window.marked ? marked.parse(msg.content) : msg.content;
-        innerContent = `<div class="message-bubble">${thinkingHtml}${parsedMarkdown}</div>`;
+        bubbleContent = `<div class="message-bubble">${thinkingHtml}${parsedMarkdown}</div>`;
+        
+        metaRow = `
+          <div class="message-meta-row">
+            <div class="msg-actions-toolbar">
+              <button class="msg-action-btn copy-btn" title="Copy"><i data-lucide="copy"></i></button>
+              <button class="msg-action-btn thumb-up-btn" title="Like"><i data-lucide="thumbs-up"></i></button>
+              <button class="msg-action-btn thumb-down-btn" title="Dislike"><i data-lucide="thumbs-down"></i></button>
+            </div>
+            <span class="message-time" style="margin-left:auto;">${msg.timestamp || '10:31 AM'}</span>
+          </div>
+        `;
+
+        row.innerHTML = `
+          <div class="message-avatar">C</div>
+          <div class="message-bubble-wrapper">
+            ${bubbleContent}
+            ${metaRow}
+          </div>
+        `;
+
+        // Copy button listener
+        row.querySelector('.copy-btn').addEventListener('click', () => {
+          navigator.clipboard.writeText(msg.content);
+          this.showToast('Copied to clipboard');
+        });
       }
-
-      row.innerHTML = `
-        <div class="message-avatar">${avatarSymbol}</div>
-        <div class="message-content-wrapper">
-          <div class="message-author">
-            ${msg.role === 'user' ? 'You' : 'Clyde'}
-            <span class="message-time">${msg.timestamp || ''}</span>
-          </div>
-          ${innerContent}
-          <div class="message-actions">
-            <button class="action-icon-btn copy-msg-btn" title="Copy Text"><i data-lucide="copy"></i> Copy</button>
-            <button class="action-icon-btn thumb-msg-btn" title="Good Response"><i data-lucide="thumbs-up"></i></button>
-          </div>
-        </div>
-      `;
-
-      // Copy Action
-      row.querySelector('.copy-msg-btn').addEventListener('click', () => {
-        navigator.clipboard.writeText(msg.content);
-        this.showToast('Message copied to clipboard');
-      });
 
       this.messagesFeed.appendChild(row);
     });
 
-    // Re-highlight & render math
     document.querySelectorAll('.message-bubble pre code').forEach(block => {
       if (window.hljs) hljs.highlightElement(block);
     });
@@ -683,13 +587,14 @@ class ClydeApp {
     this.attachments.forEach((att, idx) => {
       const card = document.createElement('div');
       card.className = 'attachment-preview-card';
+      card.style.cssText = 'display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--bg-card-inner);border-radius:6px;font-size:12px;';
       card.innerHTML = `
-        <i data-lucide="${att.type.startsWith('image/') ? 'image' : 'file-text'}" style="width:14px;height:14px;"></i>
+        <i data-lucide="file-text" style="width:14px;height:14px;"></i>
         <span>${att.name}</span>
-        <span class="remove-attach-btn" data-idx="${idx}">&times;</span>
+        <span class="remove-btn" style="cursor:pointer;margin-left:4px;">&times;</span>
       `;
 
-      card.querySelector('.remove-attach-btn').addEventListener('click', (e) => {
+      card.querySelector('.remove-btn').addEventListener('click', () => {
         this.attachments.splice(idx, 1);
         this.renderAttachmentsPreview();
       });
@@ -702,8 +607,7 @@ class ClydeApp {
   updateTokenCounter() {
     const text = this.chatInput.value;
     const tokens = Math.ceil(text.length / 4);
-    const estCost = (tokens * 0.000003).toFixed(5);
-    this.tokenCounter.textContent = `${tokens} tokens (~$${estCost})`;
+    this.tokenCounter.textContent = `${tokens} tokens`;
   }
 
   scrollToBottom() {
@@ -716,7 +620,7 @@ class ClydeApp {
     toast.innerHTML = `<i data-lucide="info" style="width:16px;height:16px;color:var(--accent-color);"></i> <span>${msg}</span>`;
     document.getElementById('toast-container').appendChild(toast);
     if (window.lucide) lucide.createIcons();
-    setTimeout(() => toast.remove(), 3000);
+    setTimeout(() => toast.remove(), 2500);
   }
 }
 
